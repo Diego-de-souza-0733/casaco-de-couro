@@ -1,0 +1,120 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - D-Raw Clothing</title>
+    <link rel="stylesheet" href="estilizar.css">
+    <link rel="stylesheet" href="login2.css">
+</head>
+
+<body class="pagina-autenticacao">
+
+    <div class="caixa-autenticacao">
+
+        <a href="index.html" class="logo-autenticacao">
+            D-Raw Clothing
+        </a>
+
+        <h1>Bem-vindo de volta</h1>
+
+        <p class="descricao-autenticacao">
+            Entre na sua conta para acessar nossa loja.
+        </p>
+
+        <form id="form-login">
+
+            <label for="telefone">Telefone</label>
+            <input
+                type="tel"
+                id="telefone"
+                placeholder="Digite seu telefone"
+                maxlength="20"
+                required
+            >
+
+            <label for="senha">Senha</label>
+            <input
+                type="password"
+                id="senha"
+                placeholder="Digite sua senha"
+                required
+            >
+
+            <button type="submit" id="btn-login">
+                Entrar
+            </button>
+
+        </form>
+
+        <p id="mensagem" class="mensagem"></p>
+
+        <p class="texto-alternativo">
+            Ainda não possui uma conta?
+            <a href="cadastro.html">Cadastre-se</a>
+        </p>
+
+        <a href="index.html" class="voltar-loja">
+            Voltar para a loja
+        </a>
+
+    </div>
+
+    <script>
+        const formLogin = document.getElementById('form-login');
+        const mensagem = document.getElementById('mensagem');
+        const btnLogin = document.getElementById('btn-login');
+
+        formLogin.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const telefone = document.getElementById('telefone').value.trim();
+            const senha = document.getElementById('senha').value;
+
+            mensagem.textContent = 'Verificando seus dados...';
+            mensagem.className = 'mensagem';
+            btnLogin.disabled = true;
+
+            try {
+                const resposta = await fetch('http://localhost:3000/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        telefone,
+                        senha
+                    })
+                });
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok) {
+                    throw new Error(dados.erro || 'Telefone ou senha incorretos.');
+                }
+
+                sessionStorage.setItem(
+                    'usuario',
+                    JSON.stringify(dados.usuario)
+                );
+
+                mensagem.textContent = 'Login realizado com sucesso!';
+                mensagem.className = 'mensagem sucesso';
+
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+
+            } catch (erro) {
+                mensagem.textContent = erro.message;
+                mensagem.className = 'mensagem erro';
+
+            } finally {
+                btnLogin.disabled = false;
+            }
+        });
+    </script>
+
+</body>
+</html>
